@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task 1: Signup & Dashboard</title>
+    <style>
+        :root { --bg: #f4f4f4; --text: #333; --box: white; border: 1px solid #ddd; }
+        [data-theme="dark"] { --bg: #222; --text: #eee; --box: #333; border: 1px solid #555; }
+        
+        body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); padding: 20px; transition: 0.3s; }
+        .container { max-width: 500px; margin: auto; background: var(--box); padding: 20px; border-radius: 8px; }
+        input { width: 95%; padding: 10px; margin-bottom: 10px; }
+        button { background: #28a745; color: white; border: none; padding: 10px; width: 100%; cursor: pointer; }
+        .toggle { background: #007bff; width: auto; float: right; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="toggle" onclick="toggleTheme()">Toggle Dark Mode</button>
+        <div style="clear:both;"></div>
+        
+        <h2>Signup Form</h2>
+        <form id="form">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Password (min 6 chars)" minlength="6" required>
+            <button type="submit">Signup</button>
+        </form>
+        
+        <hr>
+        <h2>Dashboard</h2>
+        <table>
+            <thead><tr><th>Username</th><th>Email</th><th>Action</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Dark Mode Logic
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        
+        function toggleTheme() {
+            let theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }
+
+        // Form & Dashboard Logic
+        displayUsers();
+        
+        document.getElementById('form').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            let user = document.getElementById('username').value;
+            let email = document.getElementById('email').value;
+            let pass = btoa(document.getElementById('password').value); // Basic hashing simulation
+            
+            let usersList = JSON.parse(localStorage.getItem('users')) || [];
+            usersList.push({ user: user, email: email, pass: pass });
+            localStorage.setItem('users', JSON.stringify(usersList));
+            
+            document.getElementById('form').reset();
+            displayUsers(); 
+        });
+
+        function displayUsers() {
+            let usersList = JSON.parse(localStorage.getItem('users')) || [];
+            let table = document.getElementById('tableBody');
+            table.innerHTML = ''; 
+            
+            usersList.forEach((u, index) => {
+                table.innerHTML += `<tr>
+                    <td>${u.user}</td>
+                    <td>${u.email}</td>
+                    <td><button onclick="deleteUser(${index})" style="background:#dc3545; padding:5px; width:auto;">Delete</button></td>
+                </tr>`;
+            });
+        }
+
+        function deleteUser(index) {
+            let usersList = JSON.parse(localStorage.getItem('users')) || [];
+            usersList.splice(index, 1);
+            localStorage.setItem('users', JSON.stringify(usersList));
+            displayUsers();
+        }
+    </script>
+</body>
+</html>
